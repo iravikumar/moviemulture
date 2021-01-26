@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -33,7 +34,21 @@ class Movie(models.Model):
 
 
     def __str__(self):
-        return self.id if self.id else self.title
+        return self.title if self.title else self.id
 
 
 
+class MovieList(models.Model):
+
+    list_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=256, blank=True)
+    movies = models.ManyToManyField(Movie, related_name='movies', blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
+
+
+    class Meta:
+        verbose_name_plural = 'MovieList'
+
+
+    def __str__(self):
+        return self.name if self.name else self.id
