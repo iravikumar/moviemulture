@@ -1,3 +1,5 @@
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
 
@@ -35,28 +37,29 @@ class MovieListDetailAPIView(RetrieveUpdateDestroyAPIView):
 class MovieRecommendationsAPIView(APIView):
 
     def get(self, request):
+        try:
+            list_id = self.request.query_params.get('list_id')
 
-        # try:
-        #     list_id = self.request.query_params.get('list_id')
+            if list_id:
+                movie_list = MovieList.objects.filter(list_id=list_id).first()
+                if movie_list:
+                    serialized_movie_list = MovieListSerializer(movie_list)
+                    movie_ids = serialized_movie_list.data.pop('movies', [])
 
-        #     if list_id:
-        #         movie_list = MovieList.objects.filter(list_id=list_id)
-        #     else:
-        #         movie_list = MovieList.objects.all()
+                    movie_years = {Movie.objects.get(id=movie_id).year for movie_id in movie_ids}
 
-        #     # movie_list.movies
+                    movie_recommendations = Movie.objects.filter(year__in=movie_years).order_by('year')
+                    serialized_movie_recommendations = MovieSerializer(movie_recommendations,  many=True)
 
-        #     # movie_recommendations = Movie.objects.filter()
+                    return Response(serialized_movie_recommendations.data)
+                else:
+                    return Response({"message": "Wrong list_id"})
 
-        #     serialized_movie_list = MovieListSerializer(movie_list)
+        except MovieList.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        return Response({"hello": "hello"})
-
-        # except MovieList.DoesNotExist:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
-
         serializer = MovieListSerializer(data=request.data)
 
         if serializer.is_valid():
