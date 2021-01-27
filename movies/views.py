@@ -49,9 +49,9 @@ class MovieRecommendationsAPIView(APIView):
                     movie_recommendations = Movie.objects.filter(year__in=movie_years).order_by('year')
                     serialized_movie_recommendations = MovieSerializer(movie_recommendations,  many=True)
 
-                    return Response(serialized_movie_recommendations.data, , status=status.HTTP_200_OK)
+                    return Response(serialized_movie_recommendations.data, status=status.HTTP_200_OK)
 
-            return Response({"message": "Wrong list_id"})
+            return Response({"message": "Missing or Wrong list_id"})
 
         except MovieList.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
