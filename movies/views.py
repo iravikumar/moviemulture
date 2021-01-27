@@ -7,8 +7,6 @@ from .models import Movie, MovieList
 from .serializers import MovieSerializer, MovieListSerializer
 
 # Movie API View
-
-
 class MovieListAPIView(ListCreateAPIView):
 
     queryset = Movie.objects.all()
